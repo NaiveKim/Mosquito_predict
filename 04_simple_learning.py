@@ -36,18 +36,18 @@ x_train_scaled = minmax.transform(x_train)
 x_train.info()
 
 x_train_scaled.astype('f')
-y_train.astype('f')
-
+y_train = np.asarray(y_train, dtype = int)
+y_test = np.asarray(y_test, dtype = int)
 print(y_train)
 print(type(y_train))
 
 
-model = MLPClassifier(hidden_layer_sizes=(10,), activation='logistic',
-                      solver='sgd', alpha=0.01, batch_size=32,
+model = MLPClassifier(hidden_layer_sizes=(10,), activation='relu',
+                      alpha=0.01, batch_size=32,
                       learning_rate_init=0.1, max_iter=500)
 
 model.fit(x_train_scaled, y_train)
-model.score(x_test_scaled, y_test)
+print(model.score(x_test_scaled, y_test))
 
 # test_x = mosquito_df.drop(columns=['mosquito_Indicator'])
 
