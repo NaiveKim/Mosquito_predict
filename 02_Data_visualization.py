@@ -20,8 +20,7 @@ pd.to_datetime(mosquito_df['date'])
 # for j in mosquito_df['date']:
 
     # mosquito_df.loc[mosquito_df['date']== i,"date"] = int(numeric)
-plt.figure(figsize = (20,6))
-plt.bar(mosquito_df['date'], mosquito_df['mosquito_Indicator'])
-plt.title('date')
+plt.figure(figsize = (15,6))
+mosquito_df.plot(subplots=True)
 
 plt.show()

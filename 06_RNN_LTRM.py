@@ -8,6 +8,9 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+from tensorflow.keras.models import *
+from tensorflow.keras.layers import *
+
 
 mosquito_df = pd.read_csv('mosquito_active_rate/mosquito_active_rate_20160101_20220719.csv')
 
@@ -53,23 +56,46 @@ print(X)
 
 x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, shuffle=False)
 
-model=Sequential()
-model.add(LSTM(30,activation='relu',input_shape=(4,1)))
-
+print(x_train)
+print(y_train)
+print(x_train.shape)
+model = Sequential()
+# model.add(Embedding(9080, input_length=4, input_shape=(30,1)))
+# model.add(Conv1D(32, kernel_size=5, padding='same', activation='relu'))
+# model.add(MaxPool1D(pool_size=1))
+model.add(LSTM(256, input_shape=(30, 1), return_sequences=True))
+model.add(Dropout(0.3))
+model.add(LSTM(128, activation='tanh', return_sequences=True))
+model.add(Dropout(0.3))
+model.add(LSTM(64, activation='tanh', return_sequences=True))
+model.add(Dropout(0.3))
+model.add(LSTM(64, activation='tanh'))
+model.add(Flatten())
+model.add(Dense(4, activation='tanh'))
 model.add(Dense(1))
-
 model.summary()
 
 early_stop = EarlyStopping(monitor='val_loss', mode = 'min', verbose=1, patience = 5)
 checkpoint = ModelCheckpoint('the_best.h5', monitor='val_loss', verbose=1, save_best_only=True, mode='auto')
 
 model.compile(optimizer = 'adam', loss = 'mse', metrics=['acc'])
-model.fit(x_train,y_train,validation_data= (x_test, y_test), epochs=100, batch_size = 1)
+fit_hist = model.fit(x_train,y_train,validation_data= (x_test, y_test), epochs=150, batch_size = 16, shuffle = False)
 # print(model.evaluate(x_test, y_test))
 
+mse,mae = model.evaluate(x_test,y_test,batch_size=1)
+print(model.predict(x_test,batch_size=1))
+print(mse, mae)
 
-x_input = array([11.5, 27.1, 24.3, 30.7])
-x_input = x_input.reshape((1,4,1))
+plt.plot(fit_hist.history['val_acc'], label='val_acc')
+plt.plot(fit_hist.history['acc'], label='accuracy')
+plt.legend()
+plt.show()
 
-pred = model.predict(x_input)
+plt.plot(fit_hist.history['loss'], label = 'loss')
+plt.plot(fit_hist.history['val_loss'], label = 'val_loss')
+plt.legend()
+plt.show()
+
+pred = model.predict(X)
 print(pred)
+
